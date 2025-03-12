@@ -1,6 +1,8 @@
 from textnode import TextNode, TextType
 import re
 
+# Bootdev --> Wsl --> powershell --> wsl.exe --Ubuntu --> bootdev login --> cd /OneDrive/workspace/static_site_generator
+
 class HTMLNode:
 	def __init__(self, tag=None, value=None, children=None, props=None):
 		self.tag = tag
