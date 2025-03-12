@@ -3,6 +3,9 @@ import re
 
 # Bootdev --> Wsl --> powershell --> wsl.exe --Ubuntu --> bootdev login --> cd /OneDrive/workspace/static_site_generator
 
+# public$
+# python3 -m http.server 8888
+
 class HTMLNode:
 	def __init__(self, tag=None, value=None, children=None, props=None):
 		self.tag = tag
