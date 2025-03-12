@@ -8,8 +8,8 @@ class TextType(Enum):
 	BOLD = "bold"     # For bold text
 	ITALIC = "Italic" # For italic text
 	CODE = "Code"     # For code text
-	LINKS = "Links"   # For links
-	IMAGES = "Image"  # For images
+	LINK = "Link"   # For links
+	IMAGE = "Image"  # For images
 
 
 class TextNode:

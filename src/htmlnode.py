@@ -1,4 +1,5 @@
 from textnode import TextNode, TextType
+import re
 
 class HTMLNode:
 	def __init__(self, tag=None, value=None, children=None, props=None):
@@ -109,7 +110,7 @@ def process_text_node(text, delimiter, text_type):
 
 
 def extract_markdown_images(text):
-	import re
+
 	alt_text = re.findall(r"\!\[(.*?)\]",text)
 	url_text = re.findall(r"\((https:\/\/.*?)\)",text)
 	pairs = len(alt_text)
@@ -127,3 +128,75 @@ def extract_markdown_links(text):
 	for x in range(pairs):
 		tuple.append((alt_text[x], url_text[x]))
 	return tuple
+
+
+mock_node = TextNode(
+    "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
+    TextType.TEXT,
+)
+# [
+#     TextNode("This is text with a link ", TextType.TEXT),
+#     TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+#     TextNode(" and ", TextType.TEXT),
+#     TextNode(
+#         "to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"
+#     ),
+# ]
+
+# Split text with link to text nodes
+def split_nodes_link_img(old_nodes, Texttype):
+	if Texttype == TextType.LINK or Texttype == TextType.IMAGE:
+		new_nodes = []
+		for old_node in old_nodes:
+			text = old_node.text
+			# If not a text node, add it as is
+			if old_node.text_type != TextType.TEXT:
+				new_nodes.append(old_node)
+				continue
+			if Texttype == TextType.IMAGE:
+				text = text.replace("!","")
+			# Process the text node to find delimiter pairs
+			result_nodes = process_link_text_node(text, Texttype)
+			new_nodes.extend(result_nodes)
+	else:
+		raise ValueError("Text needs to be converted to type IMAGE or LINK")
+	return new_nodes
+
+def process_link_text_node(text, Texttype):
+	result_nodes = []
+	# Find first delimiter
+	start_idx = text.find("[")
+	if start_idx == -1:
+		# No delimiter found, return node as is
+		return [TextNode(text, TextType.TEXT)] if text else []
+	
+	# Find matching closing delimiter
+	end_idx = text.find("]", start_idx + len("["))
+	if end_idx == -1:
+		raise Exception(f"No closing delimiter found for '{"["}'") 
+	# Text before the first delimiter
+	if start_idx > 0:
+		result_nodes.append(TextNode(text[:start_idx], TextType.TEXT))
+
+	url_start = text.find("(")
+	url_end = text.find(")", url_start+len("("))
+	# Text between delimiters (without the delimiters)
+	
+	special_text = text[start_idx + len("["):end_idx]
+	url_text = text[url_start + len("("):url_end]
+
+	result_nodes.append(TextNode(special_text, Texttype, url=url_text))
+
+	# Process remaining text after second delimiter
+	remaining_text = text[url_end + len(")"):]
+	if remaining_text:
+		result_nodes.extend(process_link_text_node(remaining_text, Texttype))
+	return result_nodes
+
+
+# Split text with image to text nodes
+def split_nodes_image(old_nodes):
+
+	return None
+
+
